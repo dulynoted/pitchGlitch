@@ -6,15 +6,23 @@ int nextHeight = 0;
 int lastTolerance = int(random(100, 250));
 int nextTolerance = 0;
 final int MIN_SPACE = 20;
+Sprite sprite;
+int s;
+int pitch;
+
 void setup() {
   tempo=4;
+  s=20;
   size(700, 500);
+  sprite=new Sprite(s);
   song=new ArrayList<Note>();
-  song.add(new Note(tempo, 100, 200, 20, 200, 100, 20));
+      song.add(compose(tempo, int(random(75, 200)), int(random(75, 350)), int(random(255)), int(random(255)), int(random(255)), int(random(100, 250))));
   background(0, 0, 0);
 }
 void draw() {
   play(song);
+ // sprite.move(pitch);
+  sprite.display();
 }
 
 void generateNextHeightAndTolerance(){
