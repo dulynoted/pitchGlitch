@@ -5,13 +5,13 @@ class Note {
   int tempo;
   int wide;
   int high;
-  Note(int temp, int w, int h, int r, int g, int b, int tol) {
+  Note(int temp, int w, int h, color[] c, int tol) {
     tempo=temp;
     wide=w;
     high=h;
     tolerance=tol;
-    bottom=new Obstacle(w, h, r, g, b, width, (height-h-1));
-    top=new Obstacle(w, height-(tolerance+h), r, g, b, width, 1);
+    bottom=new Obstacle(w, h, c[0], width, (height-h-1));
+    top=new Obstacle(w, height-(tolerance+h), c[1], width, 1);
   }
   void move() {
     top.move(tempo);

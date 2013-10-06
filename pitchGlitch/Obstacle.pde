@@ -5,9 +5,9 @@ int x;
 int y;
 int i;
 color c;
-Obstacle(int w,int h,int r,int g,int b,int initialx,int initialy){
+Obstacle(int w,int h,color ct, int initialx,int initialy){
 i=int(random(-50,50));
-c=color(r+i,g+i,b+i);
+c=ct;
 
 wide=w;
 high=h;
