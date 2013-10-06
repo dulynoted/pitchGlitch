@@ -1,3 +1,5 @@
+import pitaru.sonia_v2_9.*;
+
 Note n;
 ArrayList<Note> song;
 int tempo;
@@ -12,7 +14,29 @@ final int S=20;
 final int COLOR_START=200;
 final int C_S=50;
 final int MIN_SPACE = 3*S/2;
-final int MIN_WIDTH =3*MIN_SPACE/2;
+final int FFT_SAMPLE_SIZE = 4096;
+final int SAMPLE_RATE = 22200;
+final int HEIGHT = 700;
+final int WIDTH = 500;
+final int MAX_FFT_INDEX = 250;
+final float MOVE_ADJ = (float(MAX_FFT_INDEX*SAMPLE_RATE))/HEIGHT/FFT_SAMPLE_SIZE;
+final int MAX_JUMP = 50;
+Sprite sprite;
+int pitch;
+int lastMove;
+
+int findMaxFreq(float[] fft){
+  float max = 0;
+  int count = 0;
+  for(int i =0; i<MAX_FFT_INDEX; i++){
+    if(fft[i]>max){
+     max = fft[i];
+    count = i; 
+    }
+  }
+  return (count*SAMPLE_RATE)/FFT_SAMPLE_SIZE;
+}
+//final int MIN_WIDTH =3*MIN_SPACE/2;
 Sprite sprite;
 int pitch;
 boolean uncollided;
@@ -23,24 +47,44 @@ void setup() {
   red=COLOR_START+int(random(-3*C_S,3*C_S));
   green=COLOR_START+int(random(-3*C_S,3*C_S));
   blue=COLOR_START+int(random(-3*C_S,3*C_S));
-  size(700, 500);
+  size(WIDTH, HEIGHT);
   sprite=new Sprite(S);
+  lastMove = HEIGHT/2;
+  Sonia.start(this); 
+  LiveInput.start(FFT_SAMPLE_SIZE); // start the LiveInput engine, and return 256 FFT bins (frequencies)
+  LiveInput.useEqualizer(true);
   song=new ArrayList<Note>();
   song.add(rest(1));
   background(0, 0, 0);
   generateNextHeightAndTolerance() ;
 }
 void draw() {
-  collisiondetection();
-  if (uncollided) {
-    play(song);
-    sprite.move(pitch);
-    sprite.display();
-  }
-  else {
-    sprite.display();
-    noLoop();
-  }
+ LiveInput.getSpectrum();
+ int freq = findMaxFreq(LiveInput.spectrum); 
+ println(HEIGHT-(freq/MOVE_ADJ));  
+ collisiondetection();
+ if (uncollided) {
+ int nextMove = 0;
+ if(freq==0){
+   nextMove = lastMove; 
+ }else{
+   nextMove = HEIGHT-int((freq/MOVE_ADJ)); 
+ }
+ play(song);
+if(lastMove-nextMove<-MAX_JUMP){
+  sprite.move(lastMove+MAX_JUMP); 
+  lastMove = lastMove+MAX_JUMP;
+}else if(lastMove-nextMove>MAX_JUMP){
+   sprite.move(lastMove-MAX_JUMP);
+   lastMove = lastMove-MAX_JUMP;
+ }else
+  sprite.move(nextMove);
+   lastMove = nextMove;
+   sprite.display();
+ }
+ else {
+   noLoop();
+ }
 }
 
 void generateNextHeightAndTolerance() {
@@ -58,12 +102,13 @@ void generateNextHeightAndTolerance() {
 }
 
 void play(ArrayList<Note> song) {
+
   //println("song is playing with "+song.size()+" notes.");
   background(0, 0, 0);
-
   for (int i=0;i<song.size();i++) {
     int conduct=song.get(i).display();
     if (conduct<0&&i==0) {
+
       //      println("note removed");
       song.get(i+1).display();
       song.remove(i);
@@ -80,8 +125,6 @@ void play(ArrayList<Note> song) {
     if (conduct==1&&i==(song.size()-1)) {
       //      println("rest added");
       song.add(rest(1));
-
-      //      song.add(rest(int(random(MIN_SPACE,3*MIN_SPACE))));
       break;
     }
   }
@@ -89,8 +132,6 @@ void play(ArrayList<Note> song) {
 void collisiondetection() {
   for (int i=0;i<song.size();i++) {
     Note note=song.get(i);
-    if (i>3)
-      break;
     /* println("vertical bounds are ");
      println(note.verticalbounds());
      println("horizontal bounds are ");
