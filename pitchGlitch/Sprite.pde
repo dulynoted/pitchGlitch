@@ -10,8 +10,8 @@ stroke(int(random(20,250)),int(random(20,250)),int(random(20,250)));
 ellipse(spacing,p,S,S);
 }
 void move(int pitch){
-p=pitch;
-//p=mouseY;
+//p=pitch;
+p=mouseY;
 }
 void display(){
 fill(255,255,255);

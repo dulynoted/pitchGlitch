@@ -1,5 +1,6 @@
 import pitaru.sonia_v2_9.*;
 
+
 Note n;
 ArrayList<Note> song;
 int tempo;
@@ -20,16 +21,14 @@ final int HEIGHT = 700;
 final int WIDTH = 500;
 final int MAX_FFT_INDEX = 250;
 final float MOVE_ADJ = (float(MAX_FFT_INDEX*SAMPLE_RATE))/HEIGHT/FFT_SAMPLE_SIZE;
-final int MAX_JUMP = 50;
-Sprite sprite;
-int pitch;
+final int MAX_JUMP = 1;
 int lastMove;
 
 int findMaxFreq(float[] fft){
   float max = 0;
   int count = 0;
   for(int i =0; i<MAX_FFT_INDEX; i++){
-    if(fft[i]>max){
+    if(fft[i]>max && fft[i]>800){
      max = fft[i];
     count = i; 
     }
@@ -43,7 +42,7 @@ boolean uncollided;
 
 void setup() {
   uncollided=true;
-  tempo=4;
+  tempo=2;
   red=COLOR_START+int(random(-3*C_S,3*C_S));
   green=COLOR_START+int(random(-3*C_S,3*C_S));
   blue=COLOR_START+int(random(-3*C_S,3*C_S));
@@ -77,9 +76,10 @@ if(lastMove-nextMove<-MAX_JUMP){
 }else if(lastMove-nextMove>MAX_JUMP){
    sprite.move(lastMove-MAX_JUMP);
    lastMove = lastMove-MAX_JUMP;
- }else
+ }else{
   sprite.move(nextMove);
    lastMove = nextMove;
+ }
    sprite.display();
  }
  else {
