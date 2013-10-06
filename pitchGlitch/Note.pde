@@ -20,11 +20,12 @@ class Note {
   int display() {
     //    println("wide: "+wide+" x: "+top.xloco()+"total: "+ (wide+top.xloco()));
     if (wide+top.xloco()>0) {
-      move();
       //  print("Top ");
       top.display();
       //  print("bottom ");
       bottom.display();
+            move();
+
       if (wide+top.xloco()>width) {
         return 0;
       }
