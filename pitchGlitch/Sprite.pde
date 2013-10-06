@@ -10,7 +10,7 @@ stroke(int(random(0,250)),int(random(0,250)),int(random(0,250)));
 quad(spacing,position-s/2,spacing,position+s/2,s+spacing,position-s/2,s+spacing,position+s/2);
 }
 void move(int pitch){
-
+position=pitch;
 }
 void display(){
 fill(255,255,255);
