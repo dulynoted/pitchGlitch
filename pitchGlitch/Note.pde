@@ -15,7 +15,7 @@ void move(){
 top.move(tempo);
 bottom.move(tempo);
 }
-void display(){
+int display(){
   if(wide+top.xloco()>0){
   move();
     background(0,0,0);
@@ -24,7 +24,12 @@ void display(){
   top.display();
 //  print("bottom ");
   bottom.display();
+  if(wide+top.xloco()>width)
+  return 0;
+  else
+  return 1;
 }
+return -1;
 }
 
 
