@@ -26,4 +26,9 @@ void display(){
 int xloco(){
 return x;
 }
+boolean isRest(){
+if(high==0)
+return true;
+else
+return false;}
 }
