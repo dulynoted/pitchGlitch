@@ -9,11 +9,8 @@ final int MIN_SPACE = 20;
 Sprite sprite;
 int s;
 int pitch;
-<<<<<<< HEAD
 boolean uncollided;
-=======
 
->>>>>>> 611942c7c797ec28c2b3dd66f59e4a97895bb5d9
 void setup() {
   uncollided=true;
   tempo=4;
