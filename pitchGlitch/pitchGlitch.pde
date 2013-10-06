@@ -1,6 +1,11 @@
 Note n;
 ArrayList<Note> song;
 int tempo;
+int lastHeight = int(random(75, 350));
+int nextHeight = 0;
+int lastTolerance = int(random(100, 250));
+int nextTolerance = 0;
+final int MIN_SPACE = 20;
 void setup() {
   tempo=4;
   size(700, 500);
@@ -10,6 +15,17 @@ void setup() {
 }
 void draw() {
   play(song);
+}
+
+void generateNextHeightAndTolerance(){
+  do {
+    nextHeight = int(random(75, 350));
+  } while(nextHeight+MIN_SPACE>=lastHeight+lastTolerance);
+  do {
+    nextTolerance = int(random(100,250));
+  } while(nextTolerance+nextHeight+MIN_SPACE<=lastHeight);
+  lastHeight = nextHeight;
+  lastTolerance = nextTolerance;
 }
 
 void play(ArrayList<Note> song) {
@@ -23,7 +39,8 @@ void play(ArrayList<Note> song) {
     }
     if (conduct==2&&i==(song.size()-1)) {
       println("note added");
-      song.add(compose(tempo, int(random(75, 200)), int(random(75, 350)), int(random(255)), int(random(255)), int(random(255)), int(random(100, 250))));
+      generateNextHeightAndTolerance();
+      song.add(compose(tempo, int(random(75, 200)), nextHeight, int(random(255)), int(random(255)), int(random(255)), nextTolerance));
       break;
     }
     if (conduct==1&&i==(song.size()-1)) {
