@@ -11,27 +11,39 @@ int nextTolerance = 0;
 int red;
 int blue;
 int green;
-boolean screwdraw=false;
 final int S=20;
 final int COLOR_START=200;
 final int C_S=50;
-final int MIN_SPACE = 3*S/2;
+final int MIN_SPACE = 4*S;
 final int FFT_SAMPLE_SIZE = 4096;
 final int SAMPLE_RATE = 22200;
 final int HEIGHT = 700;
-final int WIDTH = 500;
-final int MAX_FFT_INDEX = 250;
+final int WIDTH = 1000;
+final int MAX_FFT_INDEX = 90;
 final float MOVE_ADJ = (float(MAX_FFT_INDEX*SAMPLE_RATE))/HEIGHT/FFT_SAMPLE_SIZE;
-final int MAX_JUMP = 1;
+final int MAX_JUMP = 3;
+final int MIN_FFT_INDEX = 0; // 45;
+final int BREAK_VOLUME = 1000;
+final int SENSITIVITY = 500;
 int lastMove;
+boolean breakIt = false;
+boolean blocking = false;
+boolean screwdraw;
+  boolean paused;
 
-int findMaxFreq(float[] fft) {
-  float max = 0;
+int findMaxFreq(float[] fft){
+  float max = SENSITIVITY;
   int count = 0;
-  for (int i =0; i<MAX_FFT_INDEX; i++) {
-    if (fft[i]>max && fft[i]>800) {
-      max = fft[i];
-      count = i;
+  for(int i =MIN_FFT_INDEX; i<MAX_FFT_INDEX; i++){
+     if(fft[i]>BREAK_VOLUME && blocking){
+        println("breakIt!");
+        breakIt = true;
+      }else{
+    if(fft[i]>max){
+     
+        max = fft[i];
+        count = i; 
+      }
     }
   }
   return (count*SAMPLE_RATE)/FFT_SAMPLE_SIZE;
@@ -42,11 +54,13 @@ int pitch;
 boolean uncollided;
 
 void setup() {
+  paused=false;
   uncollided=true;
   tempo=2;
   red=COLOR_START+int(random(-3*C_S, 3*C_S));
   green=COLOR_START+int(random(-3*C_S, 3*C_S));
   blue=COLOR_START+int(random(-3*C_S, 3*C_S));
+  screwdraw=false;
   size(WIDTH, HEIGHT);
   sprite=new Sprite(S);
   lastMove = HEIGHT/2;
@@ -59,17 +73,12 @@ void setup() {
   generateNextHeightAndTolerance() ;
 }
 void draw() {
-  //  if (!screwdraw) {
+    if (!screwdraw) {
   LiveInput.getSpectrum();
   int freq = findMaxFreq(LiveInput.spectrum); 
   //    println(HEIGHT-(freq/MOVE_ADJ));  
   collisiondetection();
-  //    if (uncollided) {
-  //      if (keyPressed) {
-  //        if (key==ENTER)
-  //          screwdraw=true;
-  //        key='a';
-  //      }
+     if (uncollided) {
 
   int nextMove = 0;
   if (freq==0) {
@@ -94,28 +103,36 @@ void draw() {
   }
   sprite.display();
 }
-//else {
-  //      screwdraw=true;
-//  menu(uncollided);
-//}
-//  }
-//  else {
-//    menu(uncollided);
-//  }
-//}
+}
+
+}
+
 void keyPressed() {
   if (key==ENTER) {
-    screwdraw=false;
     song=new ArrayList<Note>();
     song.add(rest(1));
     background(40, 40, 40);
     uncollided=true;
     generateNextHeightAndTolerance();
   }
-  if (key==' '){
-  
+  if (key==' '&&!paused){
+      println("paused is "+paused);
+      paused=true;
+      screwdraw=true;
+      key='a';
   }
+  else if(key==' '&&paused){
+          println("well screw you too buddy");
+
+  paused=false;
+  screwdraw=false;
+  key='a';
+  }
+  else{
+  println("you pressed a stupid button");
 }
+}
+/*
 void menu(boolean paused) {
   //  fill(127,127,127);
   //  stroke(255,255,255);
@@ -125,10 +142,10 @@ void menu(boolean paused) {
 
 
   //  println("WE'LL NOW YOU'RE HERE, BIGSHOT"+key+'#');
-  if (key==' ') {
-    if (paused)
-      screwdraw=false;
-  }
+//  if (key==' ') {
+//    if (paused)
+//      screwdraw=false;
+//  }
   if (key=='r') {
     println("dear god why");
     screwdraw=false;
@@ -140,7 +157,7 @@ void menu(boolean paused) {
     //    redraw();
   }
 }
-
+*/
 void generateNextHeightAndTolerance() {
   nextHeight = int(random(0, min((lastHeight+lastTolerance-MIN_SPACE), (height-MIN_SPACE))));
   if (nextHeight>lastHeight) {
@@ -151,6 +168,7 @@ void generateNextHeightAndTolerance() {
   }
   //  } 
   //  while (nextTolerance+nextHeight+MIN_SPACE<=lastHeight);
+
   lastHeight = nextHeight;
   lastTolerance = nextTolerance;
 }
@@ -173,6 +191,7 @@ void play(ArrayList<Note> song) {
 
       song.add(compose(tempo, int(random(75, 300)), nextHeight, vibrant(), nextTolerance));
       generateNextHeightAndTolerance();
+
 
       break;
     }
@@ -226,5 +245,6 @@ color[] vibrant() {
     color(red, blue, green), color(red-C_S/2, blue-C_S/2, green-C_S/2)
   };
   return colors;
+
 }
 
